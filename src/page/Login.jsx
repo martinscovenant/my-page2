@@ -1,29 +1,34 @@
 
+// Login.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './Login.css'
 
- export const Login = () => {
+export const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
 
   const handleLogin = async () => {
-
     try {
-      const response = await fetch('https://timesheet-api-main.onrender.com/admin/login', {
-        method: 'POST',
-        headers: {
-         ' x-api-key': 'a57cca53d2086ab3488b358eebbca2e7',
-          'Content-Type': 'application/json',
+      const response = await axios.post(
+        'https://timesheet-api-main.onrender.com/admin/login',
+        {
+         'username': "admin.root",
+         'password': "admin.root"
         },
-        body: JSON.stringify({ username, password }),
-      });
+        {
+          headers: {
+            'x-api-key': 'a57cca53d2086ab3488b358eebbca2e7',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-      if (response.ok) {
-        console.log('login succesful')
-        navigate('/');
+      if (response.data.status) {
+
+        console.log('Login successful');
       } else {
+  
         console.error('Login failed');
       }
     } catch (error) {
