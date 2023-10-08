@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './Login.css'
 
 export const Login = () => {
   const [formData, setFormData] = useState({
@@ -43,7 +44,7 @@ export const Login = () => {
   };
 
   return (
-    <div>
+    <div className="login-container">
       <h1>Admin Login</h1>
       <form onSubmit={handleLogin}>
         <div>
