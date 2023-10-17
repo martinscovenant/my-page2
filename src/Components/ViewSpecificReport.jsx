@@ -1,132 +1,45 @@
 
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-export const ViewSpecificReport = ({ userId }) => {
-  const [reportData, setReportData] = useState({
-    date: '',
-    project: '',
-    task: '',
-    status: '',
-    link: '',
-    duration: '',
-  });
-  const [loading, setLoading] = useState(true);
+export const ViewSpecificReport = () => {
+  const [report, setReport] = useState([]);
+  const currentDate = new Date();
+  currentDate.setDate(currentDate.getDate() - 7);
+  const formattedDate = currentDate.toISOString().split("T")[0];
 
   useEffect(() => {
-    const fetchSpecificReport = async () => {
-      try {
-        
-        const response = await axios.get(
-          `https://timesheet-api-main.onrender.com/view/reports/${userId}`,
-          {
-            headers: {
-              'x-api-key': 'a57cca53d2086ab3488b358eebbca2e7',
-              Authorization: 'Bearer <admin_access_token>',
-            },
+    const accessToken = sessionStorage.getItem("access_token");
+    try {
+      const apiUrl = `https://timesheet-api-main.onrender.com/view/reports/all?current-week=${formattedDate}`;
+      fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "x-api-key": "a57cca53d2086ab3488b358eebbca2e7",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            console.log("Response:", response);
+            throw new Error(`Failed to fetch data. Status: ${response.status}`);
           }
-        );
-
-        const report = response.data.data.report;
-        setReportData({
-          date: report.date,
-          project: report.project,
-          task: report.task,
-          status: report.status,
-          link: report.link,
-          duration: report.duration,
+        })
+        .then((data) => {
+          if (data.status) {
+            setReport(data.data);
+          }
         });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }, [formattedDate]);
 
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching specific report:', error);
-        setLoading(false);
-      }
-    };
+  const navigate = useNavigate();
 
-    fetchSpecificReport();
-  }, [userId]);
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setReportData({ ...reportData, [name]: value });
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    // Add your submit logic here, e.g., send the updated data to the server
-  };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  return (
-    <div className="report-container">
-      <h1>Report</h1>
-      <form onSubmit={handleSubmit}>
-        <div className="input">
-          <label>Date:</label>
-          <input
-            type="date"
-            name="date"
-            value={reportData.date}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div  className="input">
-          <label>Project:</label>
-          <input
-            type="text"
-            name="project"
-            value={reportData.project}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="input">
-          <label>Task:</label>
-          <input
-            type="text"
-            name="task"
-            value={reportData.task}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="input">
-          <label>Status:</label>
-          <input
-            type="text"
-            name="status"
-            value={reportData.status}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="input">
-          <label>Link:</label>
-          <input
-            type="url"
-            name="link"
-            value={reportData.link}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="input">
-          <label>Duration:</label>
-          <input
-            type="text"
-            name="duration"
-            value={reportData.duration}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit">Submit Report</button>
-      </form>
-    </div>
-  );
 };
+
+
