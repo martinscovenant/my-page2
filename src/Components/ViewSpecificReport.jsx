@@ -40,6 +40,70 @@ export const ViewSpecificReport = () => {
 
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    sessionStorage.removeItem("access_token");
+    navigate("/");
+  };
+
+  return (
+    <div>
+      <div className="w-full p-1 h-11 flex justify-end my-4">
+        <button
+          className="bg-blue-500 text-white rounded-md p-1 mr-[3%]"
+          onClick={handleLogout}
+        >
+          LOGOUT
+        </button>
+      </div>
+      <div className="sm:overflow-x-scroll lg:overflow-x-hidden">
+        <table className="mx-auto w-4/5">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Day</th>
+              <th>Project</th>
+              <th>Task</th>
+              <th>Status</th>
+              <th>Duration</th>
+              <th>Link</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {report.map((item, index) => (
+              <tr key={index}>
+                <td>{item.report.date}</td>
+                <td>{item.report["day-of-week"]}</td>
+                <td>{item.report.project}</td>
+                <td>{item.report.task}</td>
+                <td>{item.report.status}</td>
+                <td>{item.report.duration}</td>
+                <td>
+                  <a
+                    href={
+                      item.report.link.startsWith("http")
+                        ? item.report.link
+                        : `http://${item.report.link}`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500"
+                  >
+                    {item.report.link}
+                  </a>
+                </td>
+                <td>
+                  <Link to={`/view-specific-report/${item.user.id}`}>
+                    <button className="bg-blue-500 p-2 rounded-lg">View</button>
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 };
 
 
