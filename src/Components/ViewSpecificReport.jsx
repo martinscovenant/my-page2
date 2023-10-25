@@ -1,109 +1,115 @@
-
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export const ViewSpecificReport = () => {
-  const [report, setReport] = useState([]);
-  const currentDate = new Date();
-  currentDate.setDate(currentDate.getDate() - 7);
-  const formattedDate = currentDate.toISOString().split("T")[0];
+  const [loading, setLoading] = useState(true);
+  const [reportData, setReportData] = useState([]);
+  const [userData, setUserData] = useState({});
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const accessToken = sessionStorage.getItem("access_token");
-    try {
-      const apiUrl = `https://timesheet-api-main.onrender.com/view/reports/all?current-week=${formattedDate}`;
-      fetch(apiUrl, {
-        method: "GET",
-        headers: {
-          "x-api-key": "a57cca53d2086ab3488b358eebbca2e7",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-        .then((response) => {
-          if (response.status === 200) {
-            return response.json();
-          } else {
-            console.log("Response:", response);
-            throw new Error(`Failed to fetch data. Status: ${response.status}`);
+    async function fetchReportData() {
+      try {
+        const response = await fetch(
+          'https://timesheet-api-main.onrender.com/view/reports/<user_id>',
+          {
+            headers: {
+              'x-api-key': 'a57cca53d2086ab3488b358eebbca2e7',
+            },
           }
-        })
-        .then((data) => {
-          if (data.status) {
-            setReport(data.data);
-          }
-        });
-    } catch (error) {
-      console.error("Error fetching data:", error);
+        );
+
+        if (response.status === 200) {
+          const responseData = await response.json();
+          setUserData(responseData.data.user);
+          setReportData(responseData.data.report);
+        } else {
+          alert("Error occurred while fetching user's report");
+        }
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
     }
-  }, [formattedDate]);
-
+    fetchReportData();
+  }, []);
   const navigate = useNavigate();
-
   const handleLogout = () => {
-    sessionStorage.removeItem("access_token");
-    navigate("/");
+    sessionStorage.removeItem('access_token');
+    navigate('/');
   };
-
   return (
     <div>
-      <div className="w-full p-1 h-11 flex justify-end my-4">
-        <button
-          className="bg-blue-500 text-white rounded-md p-1 mr-[3%]"
-          onClick={handleLogout}
-        >
-          LOGOUT
-        </button>
-      </div>
-      <div className="sm:overflow-x-scroll lg:overflow-x-hidden">
-        <table className="mx-auto w-4/5">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Day</th>
-              <th>Project</th>
-              <th>Task</th>
-              <th>Status</th>
-              <th>Duration</th>
-              <th>Link</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {report.map((item, index) => (
-              <tr key={index}>
-                <td>{item.report.date}</td>
-                <td>{item.report["day-of-week"]}</td>
-                <td>{item.report.project}</td>
-                <td>{item.report.task}</td>
-                <td>{item.report.status}</td>
-                <td>{item.report.duration}</td>
-                <td>
-                  <a
-                    href={
-                      item.report.link.startsWith("http")
-                        ? item.report.link
-                        : `http://${item.report.link}`
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500"
-                  >
-                    {item.report.link}
-                  </a>
-                </td>
-                <td>
-                  <Link to={`/view-specific-report/${item.user.id}`}>
-                    <button className="bg-blue-500 p-2 rounded-lg">View</button>
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Helmet>
+        <title>VIEW SPECIFIC REPORTS</title>
+        <link rel="icon" type="image/png" href="./assets/Images/adviewicon.png" />
+      </Helmet>
+      {loading ? (
+        <div className="tc mt-5">
+          <FontAwesomeIcon icon={faSpinner} spin /> Loading...
+        </div>
+      ) : error ? (
+        <div className="tc mt-4 red">{error}</div>
+      ) : (
+        <div>
+          <div className="w-100 pv1 flex justify-end mt-4">
+            <Link to="/view-reports">
+              <button className="bg-blue white br1 pv1 ph2 ma1">GO BACK</button>
+            </Link>
+            
+          </div>
+          <div className="tc mt-4">
+            <h2 className="fw9 f2">User Details</h2>
+            <p>
+              <span className="fw6">Email:</span> {userData.email}
+            </p>
+            <p>
+              <span className="fw6">Username:</span> {userData.username}
+            </p>
+          </div>
+          <div className="overflow-x-scroll overflow-x-hidden">
+            <table className="w-80 center">
+              <thead>
+                <tr>
+                  <th className="ba b--black-20 pv2 ph3">Date</th>
+                  <th className="ba b--black-20 pv2 ph3">Day</th>
+                  <th className="ba b--black-20 pv2 ph3">Project</th>
+                  <th className="ba b--black-20 pv2 ph3">Task</th>
+                  <th className="ba b--black-20 pv2 ph3">Status</th>
+                  <th className="ba b--black-20 pv2 ph3">Duration</th>
+                  <th className="ba b--black-20 pv2 ph3">Link</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(reportData).map(([day, data]) => (
+                  <tr key={day}>
+                    <td className="ba b--black-20 pv3 ph4">{data.date}</td>
+                    <td className="ba b--black-20 pv3 ph4">{data['day-of-week']}</td>
+                    <td className="ba b--black-20 pv3 ph4">{data.project}</td>
+                    <td className="ba b--black-20 pv3 ph4">{data.task}</td>
+                    <td className="ba b--black-20 pv3 ph4">{data.status}</td>
+                    <td className="ba b--black-20 pv3 ph4">{data.duration}</td>
+                    <td className="ba b--black-20 pv3 ph4">
+                      <a
+                        href={data.link.startsWith('http') ? data.link : `http://${data.link}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {data.link}
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-
-
