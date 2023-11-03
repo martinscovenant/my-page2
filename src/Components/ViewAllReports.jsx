@@ -5,25 +5,41 @@ import { useNavigate } from "react-router-dom";
 
 export const ViewAllReports = () => {
     const [report, setReport] = useState([]);
-    const currentDate = new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
+    const currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() - 7);
     const formattedDate = currentDate.toISOString().split('T')[0];
-    
+
     useEffect(() => {
         const accessToken = sessionStorage.getItem('access_token');
-        const apiUrl = `https://timesheet-api-main.onrender.com/view/reports/all?current-week=${formattedDate}`;
-        
-        fetch(apiUrl, {
-            headers: {
-                'x-api-key': 'a57cca53d2086ab3488b358eebbca2e7',
-                'Authorization': `Bearer ${accessToken}`
-            }
-        })
-        .then(response => response.json())
-        .then(data => data.status && setReport(data.data))
-        .catch(error => console.error("Error fetching data:", error));
+        try {
+            const apiUrl = `https://timesheet-api-main.onrender.com/view/reports/all?current-week=${formattedDate}`;
+            fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'x-api-key': 'a57cca53d2086ab3488b358eebbca2e7',
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        return response.json();
+                    } else {
+                        console.log('Response:', response);
+                        throw new Error(`Failed to fetch data. Status: ${response.status}`);
+                    }
+                })
+                .then(data => {
+                    if (data.status) {
+                        setReport(data.data);
+                    }
+                });
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
     }, [formattedDate]);
 
     const navigate = useNavigate();
+
     const handleLogout = () => {
         sessionStorage.removeItem('access_token');
         navigate('/');
@@ -33,33 +49,34 @@ export const ViewAllReports = () => {
         <>
             <Helmet>
                 <title>VIEW ALL REPORTS</title>
+                <link rel="icon" type="image/png" href="./assets/Images/adviewicon.png" />
             </Helmet>
-            <div className="w-full p-1 h-11 flex justify-end my-4">
-                <button className="bg-blue-500 text-white rounded-md p-1 mr-[3%]" onClick={handleLogout}>LOGOUT</button>
+            <div className="w-100 pa1 flex justify-end my-4">
+                <button className="bg-blue white rounded p1 mr3" onClick={handleLogout}>LOGOUT</button>
             </div>
-            <div className="sm:overflow-x-scroll lg:overflow-x-hidden">
-                <table className="mx-auto my-[10%] w-4/5">
+            <div className="overflow-x-scroll overflow-x-hidden">
+                <table className="w-90 mx-auto mt5">
                     <thead>
-                        <tr className="border-2 border-solid border-black">
-                            <th>Date</th>
-                            <th>Day</th>
-                            <th>Project</th>
-                            <th>Task</th>
-                            <th>Status</th>
-                            <th>Duration</th>
-                            <th>Link</th>
+                        <tr>
+                            <th className="pa2 bb b--black">Date</th>
+                            <th className="pa2 bb b--black">Day</th>
+                            <th className="pa2 bb b--black">Project</th>
+                            <th className="pa2 bb b--black">Task</th>
+                            <th className="pa2 bb b--black">Status</th>
+                            <th className="pa2 bb b--black">Duration</th>
+                            <th className="pa2 bb b--black">Link</th>
                         </tr>
                     </thead>
                     <tbody>
                         {report.map((item, index) => (
-                            <tr key={index} className="border-2 border-solid border-black">
-                                <td>{item.report.date}</td>
-                                <td>{item.report["day-of-week"]}</td>
-                                <td>{item.report.project}</td>
-                                <td>{item.report.task}</td>
-                                <td>{item.report.status}</td>
-                                <td>{item.report.duration}</td>
-                                <td className="text-blue-500">
+                            <tr key={index} className="bb b--black">
+                                <td className="pa3">{item.report.date}</td>
+                                <td className="pa3">{item.report["day-of-week"]}</td>
+                                <td className="pa3">{item.report.project}</td>
+                                <td className="pa3">{item.report.task}</td>
+                                <td className="pa3">{item.report.status}</td>
+                                <td className="pa3">{item.report.duration}</td>
+                                <td className="pa3 blue">
                                     <a
                                         href={item.report.link.startsWith("http") ? item.report.link : `http://${item.report.link}`}
                                         target="_blank"
@@ -68,8 +85,8 @@ export const ViewAllReports = () => {
                                         {item.report.link}
                                     </a>
                                 </td>
-                                <Link to={`/view/${item.user.id}`}>
-                                    <button className="bg-blue-500 p-2 rounded-lg ml-[5%]">View</button>
+                                <Link to={`/view-specific-report/${item.user.id}`}>
+                                    <button className="bg-blue white pa2 br2 ml5">View</button>
                                 </Link>
                             </tr>
                         ))}
@@ -77,5 +94,5 @@ export const ViewAllReports = () => {
                 </table>
             </div>
         </>
-    );
-};
+    )
+}
