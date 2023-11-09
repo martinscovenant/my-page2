@@ -1,23 +1,26 @@
+
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import { Link } from 'react-router-dom';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, Link } from 'react-router-dom';
 
 export const ViewSpecificReport = () => {
     const [loading, setLoading] = useState(true);
     const [reportData, setReportData] = useState([]);
     const [userData, setUserData] = useState({});
     const [error, setError] = useState(null);
-    const userId = sessionStorage.getItem("user_id");
+    const { userId } = useParams();
 
     useEffect(() => {
+        const accessToken = sessionStorage.getItem('access_token');
+
         async function fetchReportData() {
             try {
-                const response = await fetch(`https://timesheet-api-main.onrender.com/view/reports/64de52055b94379e6d9d9f7b/${userId}`, {
+                const response = await fetch(`https://timesheet-api-main.onrender.com/view/reports/${userId}`, {
                     headers: {
                         'x-api-key': 'a57cca53d2086ab3488b358eebbca2e7',
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 });
 
@@ -26,7 +29,7 @@ export const ViewSpecificReport = () => {
                     setUserData(responseData.data.user);
                     setReportData(responseData.data.report);
                 } else {
-                    alert("Error occured while fetching user's report")
+                    alert("Error occurred while fetching user's report");
                 }
             } catch (error) {
                 setError(error.message);
@@ -35,17 +38,22 @@ export const ViewSpecificReport = () => {
             }
         }
         fetchReportData();
-    }, []);
-    const navigate = useNavigate()
+    }, [userId]);
+
+    const navigate = useNavigate();
+
     const handleLogout = () => {
         sessionStorage.removeItem('access_token');
-        navigate('/')
-    }
+        sessionStorage.removeItem('user_id');
+        navigate('/');
+    };
+
     return (
         <div>
-             <Helmet>
-                <title> VIEW SPECIFIC REPORTS </title>
-            </Helmet> 
+            <Helmet>
+                <title>VIEW SPECIFIC REPORTS</title>
+                <link rel="icon" type="image/png" href="./assets/Images/adviewicon.png" />
+            </Helmet>
             {loading ? (
                 <div className="text-center mt-11">
                     <FontAwesomeIcon icon={faSpinner} spin /> Loading...
@@ -54,42 +62,76 @@ export const ViewSpecificReport = () => {
                 <div className="text-center mt-4 text-red-500">{error}</div>
             ) : (
                 <div>
-                    {/* <div className="w-full p-1 h-11 flex justify-end my-4">
-                        <Link to='/view-reports'>
-                            <button className="bg-blue-500 text-white rounded-md p-1 m-1" >GO BACK </button>
+                    <div className="flex w-full h-[75px] justify-end items-center bg-gray-500">
+                        <Link to="/view-users">
+                            <button className="bg-red-500 text-white rounded-md p-1 m-1">
+                                GO BACK
+                            </button>
                         </Link>
-                        <button className="bg-blue-500 text-white rounded-md p-1 mr-[3%]" onClick={handleLogout} > LOGOUT </button>
-                    </div> */}
+                    </div>
                     <div className="text-center mt-4">
-                        <h2 className='font-extrabold text-2xl font-serif'>User Details</h2>
-                        <p><span className='font-semibold'>Email:</span> {userData.email} </p>
-                        <p><span className='font-semibold'>Username:</span> {userData.username}</p>
+                        <h2 className="font-extrabold text-2xl font-serif">User Information</h2>
+                        <p>
+                            <span className="font-semibold">Email:</span> {userData.email}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Username:</span> {userData.username}
+                        </p>
                     </div>
                     <div className="sm:overflow-x-scroll lg:overflow-x-hidden">
-                        <table className="mx-auto my-[10%] w-4/5">
+                        <table className="mx-auto">
                             <thead>
                                 <tr>
-                                    <th className='border-solid border-black border-2 p-2'>Date</th>
-                                    <th className='border-solid border-black border-2 p-2'>Day</th>
-                                    <th className='border-solid border-black border-2 p-2'>Project</th>
-                                    <th className='border-solid border-black border-2 p-2'>Task</th>
-                                    <th className='border-solid border-black border-2 p-2'>Status</th>
-                                    <th className='border-solid border-black border-2 p-2'>Duration</th>
-                                    <th className='border-solid border-black border-2 p-2'> Link </th>
+                                    <th className="border-2 border-solid border-black p-1">DATE</th>
+                                    <th className="border-2 border-solid border-black p-1">PROJECT</th>
+                                    <th className="border-2 border-solid border-black p-1">TASK</th>
+                                    <th className="border-2 border-solid border-black p-1">STATUS</th>
+                                    <th className="border-2 border-solid border-black p-1">DURATION</th>
+                                    <th className="border-2 border-solid border-black p-1">LINK</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {Object.entries(reportData).map(([day, data]) => (
-                                    <tr key={day}>
-                                        <td className='border-solid border-black border-2 p-3'>{data.date}</td>
-                                        <td className='border-solid border-black border-2 p-3'>{data['day-of-week']}</td>
-                                        <td className='border-solid border-black border-2 p-3'>{data.project}</td>
-                                        <td className='border-solid border-black border-2 p-3'>{data.task}</td>
-                                        <td className='border-solid border-black border-2 p-3'>{data.status}</td>
-                                        <td className='border-solid border-black border-2 p-3'>{data.duration}</td>
-                                        <td className='border-solid border-black border-2 p-3'><a href={data.link.startsWith("http") ? data.link : `http://${data.link}`} target="_blank" rel="noopener noreferrer">{data.link} </a></td>
-                                    </tr>
-                                ))}
+                                {Object.keys(reportData).map((dayOfWeek, index) => {
+                                    const report = reportData[dayOfWeek];
+                                    if (!report) {
+                                        return null;
+                                    }
+                                    return (
+                                        <tr key={index}>
+                                            <td className="border-2 border-solid border-black p-3">
+                                                {index + 1}
+                                            </td>
+                                            <td className="border-2 border-solid border-black p-3">
+                                                {new Date(report.date).toDateString()}
+                                            </td>
+                                            <td className="border-2 border-solid border-black p-3">
+                                                {report.project}
+                                            </td>
+                                            <td className="border-2 border-solid border-black p-3">
+                                                {report.task}
+                                            </td>
+                                            <td className="border-2 border-solid border-black p-3">
+                                                {report.status}
+                                            </td>
+                                            <td className="border-2 border-solid border-black p-3">
+                                                {report.duration}
+                                            </td>
+                                            <td className="border-2 border-solid border-black p-3 text-blue-500">
+                                                <a
+                                                    href={
+                                                        report.link.startsWith('http')
+                                                            ? report.link
+                                                            : `http://${report.link}`
+                                                    }
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {report.link}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
