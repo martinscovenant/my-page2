@@ -12,7 +12,6 @@ export const ViewAllReports = () => {
       useEffect(() => {
         const accessToken = sessionStorage.getItem('access_token');
         const apiUrl = `https://timesheet-api-main.onrender.com/view/reports/all?current-week=${formattedDate}`;
-
         fetch(apiUrl, {
             method: 'GET',
             headers: {

@@ -1,17 +1,17 @@
-// import { Login } from './page/Login';
-import { ViewSpecificReport } from './Components/ViewSpecificReport';
-import { BrowserRouter as Router } from 'react-router-dom';
-import './App.css';
+import React from "react";
+import { Route, Routes} from 'react-router-dom';
+import { Login } from "./page/Login";
+import {ViewSpecificReport } from "./components/ViewSpecificReport"
+import { ViewAllReports } from "./components/ViewAllReports";
 
-function App() {
+export default function App() {
+  
   return (
-   <Router>
-    <div>
-   <ViewSpecificReport />
-   {/* < Login /> */}
-    </div>
-   </Router>
+    <Routes>
+      <Route path="/" element={<Login/>}/> 
+      <Route path="/ViewAllReports" element={< ViewAllReports />}/> 
+      <Route path="/ViewSpecificReport" element={<ViewSpecificReport/>}/>
+      
+    </Routes>
   );
 }
-
-export default App;
