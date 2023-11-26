@@ -10,13 +10,13 @@ export const ViewAllReports = () => {
     const formattedDate = currentDate.toISOString().split('T')[0];
 
       useEffect(() => {
-        const accessToken = sessionStorage.getItem('access_token');
+        const accesstoken = sessionStorage.getItem('access_token');
         const apiUrl = `https://timesheet-api-main.onrender.com/view/reports/all?current-week=${formattedDate}`;
         fetch(apiUrl, {
             method: 'GET',
             headers: {
                 'x-api-key': 'a57cca53d2086ab3488b358eebbca2e7',
-                'Authorization': `Bearer ${accessToken}`
+                'Authorization': `Bearer ${accesstoken}`
             }
         })
         .then(response => {

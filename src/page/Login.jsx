@@ -80,7 +80,7 @@ export const Login = () => {
             if (response.status === 200) {
                 const responseData = await response.json();
                 sessionStorage.setItem('access_token', responseData.accessToken);
-                navigate("/ViewAllReports");
+                navigate("/ViewSpecificReport");
             } else {
                 setError(true);
                 setModalMessage("Invalid Username/password⚠️");
