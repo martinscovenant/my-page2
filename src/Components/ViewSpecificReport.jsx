@@ -3,16 +3,9 @@ import { Helmet } from 'react-helmet';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import {
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  Paper,
-} from '@mui/material';
+import { Table, TableHead, TableBody, TableRow, TableCell, Paper } from '@mui/material';
 
-export const SpecificReportView = () => {
+export const ViewSpecificReport = () => {
   const [loading, setLoading] = useState(true);
   const [reportData, setReportData] = useState([]);
   const [userData, setUserData] = useState({});
@@ -66,110 +59,85 @@ export const SpecificReportView = () => {
         <link rel="icon" type="image/png" href="./assets/Images/adviewicon.png" />
       </Helmet>
       {loading ? (
-        <div className="text-center mt-11">
+        <div className="tc mt-5">
           <FontAwesomeIcon icon={faSpinner} spin /> Loading...
         </div>
       ) : error ? (
-        <div className="text-center mt-4 text-red-500">{error}</div>
+        <div className="tc mt-4 red">{error}</div>
       ) : (
         <div>
-          <div className="flex w-full h-[75px] justify-end items-center bg-[#232f3e]">
+          <div className="flex justify-end items-center bg-navy pa2">
             <Link to="/view-users">
-              <button className="bg-gray-500 text-white rounded-md p-1 m-1">
+              <button className="bg-gray white ba br2 pa1 mr2">
                 GO BACK
               </button>
             </Link>
             <button
-              className="bg-gray-500 text-white rounded-md p-1 mr-[3%]"
+              className="bg-gray white ba br2 pa1 mr3"
               onClick={handleLogout}
             >
-              {' '}
-              LOGOUT{' '}
+              LOGOUT
             </button>
           </div>
-          <div className="text-center mt-4">
-            <h2 className="font-extrabold text-2xl font-serif">User Details</h2>
+          <div className="tc mt-4">
+            <h2 className="fw7 f2">User Details</h2>
             <p>
-              <span className="font-semibold">Email:</span> {userData.email}{' '}
+              <span className="fw6">Email:</span> {userData.email}
             </p>
             <p>
-              <span className="font-semibold">Username:</span> {userData.username}
+              <span className="fw6">Username:</span> {userData.username}
             </p>
           </div>
-          <div className="sm:overflow-x-scroll lg:overflow-x-hidden">
+          <div className="overflow-x-scroll">
             <Paper>
-            <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell className="border-2 border-solid border-black p-1">
-                  S/N
-                </TableCell>
-                <TableCell className="border-2 border-solid border-black p-1">
-                  DATE
-                </TableCell>
-                <TableCell className="border-2 border-solid border-black p-1">
-                  PROJECT
-                </TableCell>
-                <TableCell className="border-2 border-solid border-black p-1">
-                  TASK
-                </TableCell>
-                <TableCell className="border-2 border-solid border-black p-1">
-                  STATUS
-                </TableCell>
-                <TableCell className="border-2 border-solid border-black p-1">
-                  DURATION
-                </TableCell>
-                <TableCell className="border-2 border-solid border-black p-1">
-                  LINK
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {Array.isArray(reportData) && reportData.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} align="center">
-                    No data available
-                  </TableCell>
-                </TableRow>
-              ) : (
-                Object.entries(reportData).map(([dayOfWeek, report], index) => (
-                  <TableRow key={index}>
-                    <TableCell className="border-2 border-solid border-black p-3">
-                      {index + 1}
-                    </TableCell>
-                    <TableCell className="border-2 border-solid border-black p-3">
-                      {new Date(report.date).toDateString()}
-                    </TableCell>
-                    <TableCell className="border-2 border-solid border-black p-3">
-                      {report.project}
-                    </TableCell>
-                    <TableCell className="border-2 border-solid border-black p-3">
-                      {report.task}
-                    </TableCell>
-                    <TableCell className="border-2 border-solid border-black p-3">
-                      {report.status}
-                    </TableCell>
-                    <TableCell className="border-2 border-solid border-black p-3">
-                      {report.duration}
-                    </TableCell>
-                    <TableCell className="border-2 border-solid border-black p-3 text-blue-500">
-                      <a
-                        href={
-                          report.link.startsWith('http')
-                            ? report.link
-                            : `http://${report.link}`
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {report.link}
-                      </a>
-                    </TableCell>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    {/* <TableCell className="ba b--black pa1">S/N</TableCell> */}
+                    <TableCell className="ba b--black pa1">DATE</TableCell>
+                    <TableCell className="ba b--black pa1">PROJECT</TableCell>
+                    <TableCell className="ba b--black pa1">TASK</TableCell>
+                    <TableCell className="ba b--black pa1">STATUS</TableCell>
+                    <TableCell className="ba b--black pa1">DURATION</TableCell>
+                    <TableCell className="ba b--black pa1">LINK</TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                </TableHead>
+                <TableBody>
+                  {Array.isArray(reportData) && reportData.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} align="center">
+                        No data available
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    Object.entries(reportData).map(([dayOfWeek, report], index) => (
+                      <TableRow key={index}>
+                        <TableCell className="ba b--black pa4">{index + 1}</TableCell>
+                        <TableCell className="ba b--black pa2">
+                          {new Date(report.date).toDateString()}
+                        </TableCell>
+                        <TableCell className="ba b--black pa2">{report.project}</TableCell>
+                        <TableCell className="ba b--black pa2">{report.task}</TableCell>
+                        <TableCell className="ba b--black pa2">{report.status}</TableCell>
+                        <TableCell className="ba b--black pa2">{report.duration}</TableCell>
+                        <TableCell className="ba b--black pa2 blue">
+                          <a
+                            href={
+                              report.link.startsWith('http')
+                                ? report.link
+                                : `http://${report.link}`
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {report.link}
+                          </a>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
             </Paper>
           </div>
         </div>
